@@ -71,7 +71,7 @@ def do_install(package_name):
     try:
         subprocess.check_call(args, cwd=widgets_dir)
     except subprocess.CalledProcessError as e:
-        logger.error("Failed installing %r into %r with cmd:\n  %s\n  due to: %s", 
+        logger.error("Failed installing %r into %r with cmd:\n  %s\n  due to: %s",
                      package_name, widgets_dir, args, e)
         return -1
 
