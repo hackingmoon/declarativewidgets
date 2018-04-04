@@ -30,8 +30,10 @@ define([
                     },
                     paths: {
                         'ipywidgets4-or-jupyter-js-widgets': [
-                            'does/not/exist',  //HACK: fallbacks was acting strange with 2 items
-                            Jupyter.notebook.base_url+'nbextensions/widgets/widgets/js/widget',
+                            // Dropped support for ipywidgets4
+                            // TODO: Cleanup map above accordingly
+                            // 'does/not/exist',  //HACK: fallbacks was acting strange with 2 items
+                            // Jupyter.notebook.base_url+'nbextensions/widgets/widgets/js/widget',
                             Jupyter.notebook.base_url+'nbextensions/jupyter-js-widgets/extension',
                         ]
                     }
