@@ -86,26 +86,28 @@ def load_jupyter_server_extension(nb_app):
     logger.info('Loading urth_import server extension.')
 
     web_app = nb_app.web_app
-    widgets_dir = get_nbextension_path()
+    widgets_dir = get_serverextension_path()
 
-    # Write out a .bowerrc file to configure bower installs to
-    # not be interactive and not to prompt for analytics
-    bowerrc = os.path.join(widgets_dir, '.bowerrc')
-    if os.access(bowerrc, os.F_OK) is not True:
-        logger.debug('Writing .bowerrc at {0}'.format(bowerrc))
-        with open(bowerrc, 'a') as f:
-            f.write("""{
-            "analytics": false,
-            "interactive": false,
-            "directory": "urth_components"
-            }""")
+    # .bowerrc is now managed by ganymede.load_jupyter_server_extension()
+    #
+    # # Write out a .bowerrc file to configure bower installs to
+    # # not be interactive and not to prompt for analytics
+    # bowerrc = os.path.join(widgets_dir, '.bowerrc')
+    # if os.access(bowerrc, os.F_OK) is not True:
+    #     logger.debug('Writing .bowerrc at {0}'.format(bowerrc))
+    #     with open(bowerrc, 'a') as f:
+    #         f.write("""{
+    #         "analytics": false,
+    #         "interactive": false,
+    #         "directory": "urth_components"
+    #         }""")
 
     # The import handler serves from /urth_import and any requests
     # containing /urth_components/ will get served from the actual
     # urth_components directory.
     import_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_import')
     components_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_components/(.*)')
-    components_path = os.path.join(widgets_dir, 'urth_components/')
+    components_path = os.path.join(widgets_dir, 'urth_components')
 
     # Register the Urth import handler and static file handler.
     logger.debug('Adding handlers for {0} and {1}'.format(import_route_pattern, components_route_pattern))
@@ -117,5 +119,11 @@ def load_jupyter_server_extension(nb_app):
 def get_nbextension_path():
     """Find the path to the declarativewidgets nbextension"""
     for abspath in jupyter_path('nbextensions', 'declarativewidgets'):
+        if os.path.exists(abspath):
+            return abspath
+
+def get_serverextension_path():
+    """Find the path to the declarativewidgets serverextension"""
+    for abspath in jupyter_path('ganymede', 'declarativewidgets'):
         if os.path.exists(abspath):
             return abspath
