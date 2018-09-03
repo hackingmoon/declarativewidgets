@@ -107,13 +107,13 @@ def load_jupyter_server_extension(nb_app):
     #         "directory": "urth_components"
     #         }""")
 
-    # The import handler serves from /urth_import and any requests
-    # containing /urth_components/ will get served from the actual
-    # urth_components directory.
-    import_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_import')
-    components_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_components/(urth-.*)')
+    # The import handler serves from /notebooks/urth_import and any requests
+    # containing /notebooks/urth_components/ will get served from the actual
+    # urth_components directories.
+    import_route_pattern = url_path_join(web_app.settings['base_url'], '/notebooks/urth_import')
+    components_route_pattern = url_path_join(web_app.settings['base_url'], '/notebooks/urth_components/(urth-.*)')
     components_path = os.path.join(widgets_dir, 'urth_components')
-    server_components_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_components/(.*)')
+    server_components_route_pattern = url_path_join(web_app.settings['base_url'], '/notebooks/urth_components/(.*)')
     server_components_path = os.path.join(server_widgets_dir, 'urth_components')
 
     # Register the Urth import handler and static file handler.

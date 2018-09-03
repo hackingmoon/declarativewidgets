@@ -155,6 +155,7 @@ define([
                         this._config.namespace.notebook &&
                         this._config.namespace.notebook.base_url ?
                             this._config.namespace.notebook.base_url : '/';
+        this._baseURL += 'notebooks/';
 
         // expose suppressErrors, false by default to display errors
         this.suppressErrors = this._config.suppressErrors;
