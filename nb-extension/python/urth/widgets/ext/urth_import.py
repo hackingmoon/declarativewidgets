@@ -13,6 +13,8 @@ from tornado.web import HTTPError, RequestHandler
 from concurrent.futures import ThreadPoolExecutor
 
 widgets_dir = ''
+server_widgets_dir = ''
+
 logger = None
 
 # In Windows`bower` is not an `.exe` (see #373)
@@ -26,7 +28,7 @@ class UrthImportHandler(RequestHandler):
     # This API can be used to retrieve the list of installed bower packages.
     # It is not currently being used by the client.
     def get(self):
-        os.chdir(widgets_dir)
+        os.chdir(server_widgets_dir)
         try:
             proc = subprocess.check_output(cmd_bower + ['list', '--allow-root', '--config.interactive=false', '-o', '-p', '-j'])
             d = json.loads(proc.decode('utf-8'))
@@ -69,10 +71,10 @@ def do_install(package_name):
     args = cmd_bower + ['install', package_name, '--allow-root',
             '--config.interactive=false', '--production', '--quiet']
     try:
-        subprocess.check_call(args, cwd=widgets_dir)
+        subprocess.check_call(args, cwd=server_widgets_dir)
     except subprocess.CalledProcessError as e:
         logger.error("Failed installing %r into %r with cmd:\n  %s\n  due to: %s",
-                     package_name, widgets_dir, args, e)
+                     package_name, server_widgets_dir, args, e)
         return -1
 
     return 0
@@ -81,18 +83,21 @@ def do_install(package_name):
 def load_jupyter_server_extension(nb_app):
     global logger
     global widgets_dir
+    global server_widgets_dir
 
     logger = nb_app.log
     logger.info('Loading urth_import server extension.')
 
     web_app = nb_app.web_app
-    widgets_dir = get_serverextension_path()
+
+    widgets_dir = get_nbextension_path()
+    server_widgets_dir = get_serverextension_path()
 
     # .bowerrc is now managed by ganymede.load_jupyter_server_extension()
     #
     # # Write out a .bowerrc file to configure bower installs to
     # # not be interactive and not to prompt for analytics
-    # bowerrc = os.path.join(widgets_dir, '.bowerrc')
+    # bowerrc = os.path.join(server_widgets_dir, '.bowerrc')
     # if os.access(bowerrc, os.F_OK) is not True:
     #     logger.debug('Writing .bowerrc at {0}'.format(bowerrc))
     #     with open(bowerrc, 'a') as f:
@@ -106,14 +111,17 @@ def load_jupyter_server_extension(nb_app):
     # containing /urth_components/ will get served from the actual
     # urth_components directory.
     import_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_import')
-    components_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_components/(.*)')
+    components_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_components/(urth-.*)')
     components_path = os.path.join(widgets_dir, 'urth_components')
+    server_components_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_components/(.*)')
+    server_components_path = os.path.join(server_widgets_dir, 'urth_components')
 
     # Register the Urth import handler and static file handler.
     logger.debug('Adding handlers for {0} and {1}'.format(import_route_pattern, components_route_pattern))
     web_app.add_handlers('.*$', [
         (import_route_pattern, UrthImportHandler, dict(executor=ThreadPoolExecutor(max_workers=1))),
-        (components_route_pattern, FileFindHandler, {'path': [components_path]})
+        (components_route_pattern, FileFindHandler, {'path': [components_path]}),
+        (server_components_route_pattern, FileFindHandler, {'path': [server_components_path]}),
     ])
 
 def get_nbextension_path():
