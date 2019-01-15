@@ -112,8 +112,10 @@ def load_jupyter_server_extension(nb_app):
     # urth_components directories.
     import_route_pattern = url_path_join(web_app.settings['base_url'], '/notebooks/urth_import')
     components_route_pattern = url_path_join(web_app.settings['base_url'], '/notebooks/urth_components/(urth-.*)')
+    components_root_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_components/(urth-.*)')
     components_path = os.path.join(widgets_dir, 'urth_components')
     server_components_route_pattern = url_path_join(web_app.settings['base_url'], '/notebooks/urth_components/(.*)')
+    server_components_root_route_pattern = url_path_join(web_app.settings['base_url'], '/urth_components/(.*)')
     server_components_path = os.path.join(server_widgets_dir, 'urth_components')
 
     # Register the Urth import handler and static file handler.
@@ -121,7 +123,9 @@ def load_jupyter_server_extension(nb_app):
     web_app.add_handlers('.*$', [
         (import_route_pattern, UrthImportHandler, dict(executor=ThreadPoolExecutor(max_workers=1))),
         (components_route_pattern, FileFindHandler, {'path': [components_path]}),
+        (components_root_route_pattern, FileFindHandler, {'path': [components_path]}),
         (server_components_route_pattern, FileFindHandler, {'path': [server_components_path]}),
+        (server_components_root_route_pattern, FileFindHandler, {'path': [server_components_path]}),
     ])
 
 def get_nbextension_path():
