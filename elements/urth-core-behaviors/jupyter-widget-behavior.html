@@ -73,6 +73,9 @@ This behavior is used to encapsulate some of the services needed for ipywidgets.
                         this.onModelChange(model);
                         this.onModelReady();
                         this.fire('connected');
+
+                        alert("Ganymede channels ready!")
+
                     }.bind(this),
                     function(error){
                         this._error(error);
